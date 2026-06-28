@@ -8,6 +8,14 @@
 - Eventbrite Amsterdam: https://www.eventbrite.com/d/netherlands--amsterdam/events/
 - Meetup Amsterdam events: https://www.meetup.com/find/?location=amsterdam
 - Time Out Amsterdam events: https://www.timeout.com/amsterdam/things-to-do
+- EventConnectors: https://eventconnectors.nl/en/event-connectors/ (useful as an aggregator or event platform connector; may be more commercial than open data)
+- data.amsterdam.nl: local open data portal for Amsterdam; great for venue, events, markets, and permit-based datasets
+- data.overheid.nl: Dutch government open data portal; useful for municipal event datasets and official culture/permit feeds
+
+## Open data sources
+- data.amsterdam.nl: primary Amsterdam open-data portal with datasets for local events, markets, cultural venues, and city services
+- data.overheid.nl: national open-data hub that can supply official event and permit data for Amsterdam and regional programming
+- Note: these open-data portals are especially useful for building a stable content layer, but they may require additional normalization and filtering compared to page scraping.
 
 ## Market sources
 - I amsterdam markets and local food pages

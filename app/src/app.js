@@ -2,18 +2,27 @@ import { createCalendarView } from './calendar.js';
 import { createMapView } from './map.js';
 import { loadMonthContent } from './dataLoader.js';
 import { contentSources } from './contentSources.js';
-import { activities } from '../data/activities.js';
 
-const categoryLabels = {
+const exploreCategoryLabels = {
   all: 'All',
   route: 'Routes',
   market: 'Markets',
   concert: 'Concerts',
-  restaurant: 'Restaurants',
-  brewery: 'Breweries',
   event: 'Events',
+  museum: 'Museums',
   'walking-tour': 'Walking tours'
 };
+
+const foodCategoryLabels = {
+  restaurant: 'Restaurants',
+  sandwich: 'Sandwiches',
+  coffeeshop: 'Coffee shops',
+  brewery: 'Breweries'
+};
+
+const eventCategories = ['market', 'concert', 'event'];
+const nonCalendarCategories = ['route', 'walking-tour', 'brewery', 'restaurant', 'sandwich', 'coffeeshop', 'museum'];
+const foodDrinkCategories = ['restaurant', 'sandwich', 'coffeeshop', 'brewery'];
 
 export function createApp(root) {
   const state = {
@@ -23,50 +32,63 @@ export function createApp(root) {
     selectedDay: 1,
     monthOffset: 0,
     monthData: null,
-    loading: false
+    loading: true
   };
 
   root.innerHTML = `
-    <div style="display:grid;grid-template-columns:1.15fr 0.85fr;min-height:100vh;">
-      <section style="padding:24px;background:linear-gradient(180deg,#f8fbff 0%,#f4f7fb 100%);">
-        <h1 style="margin:0 0 8px;font-size:30px;">Amsterdam July planner</h1>
-        <p style="margin:0 0 16px;color:#4d5870;max-width:700px;">A two-part planner for city events and idea-driven activities, with map links and route details built in.</p>
-        <div style="display:flex;gap:8px;flex-wrap:wrap;margin-bottom:16px;align-items:center;">
-          <button data-view="month" class="view-button active">Month</button>
-          <button data-view="week" class="view-button">Week</button>
-          <button data-view="day" class="view-button">Day</button>
-          <div style="margin-left:auto;display:flex;gap:8px;align-items:center;">
-            <button id="month-back" style="border:1px solid #cbd5e1;background:#fff;border-radius:999px;padding:6px 10px;cursor:pointer;">←</button>
-            <div id="month-label" style="font-weight:700;min-width:120px;text-align:center;"></div>
-            <button id="month-forward" style="border:1px solid #cbd5e1;background:#fff;border-radius:999px;padding:6px 10px;cursor:pointer;">→</button>
+    <div style="max-width:1400px;margin:0 auto;padding:16px 24px;">
+      <h1 style="margin:0 0 4px;font-size:28px;">Amsterdam activities</h1>
+      <p style="margin:0 0 12px;color:#4d5870;">Walking tours, breweries, markets, concerts, museums, and more.</p>
+
+      <div id="explore-filters" style="display:flex;flex-wrap:wrap;gap:6px;margin-bottom:6px;"></div>
+      <div id="food-filters" style="display:flex;flex-wrap:wrap;gap:6px;margin-bottom:14px;"></div>
+
+      <div id="loading-bar" class="loading-pulse" style="padding:10px 14px;background:#fef3c7;border:1px solid #fde68a;border-radius:10px;margin-bottom:14px;font-size:13px;color:#92400e;">
+        Fetching live content…
+      </div>
+
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:16px;">
+        <div>
+          <div style="background:#fff;border:1px solid #e7ebf2;border-radius:16px;padding:16px;box-shadow:0 4px 12px rgba(15,23,42,0.04);">
+            <h2 style="margin:0 0 8px;font-size:18px;">Activities</h2>
+            <div id="activity-list" style="display:flex;flex-direction:column;gap:6px;max-height:380px;overflow-y:auto;"></div>
+          </div>
+          <div id="calendar-section" style="margin-top:14px;">
+            <div id="calendar-controls" style="display:flex;gap:8px;flex-wrap:wrap;margin-bottom:8px;align-items:center;">
+              <div style="display:flex;gap:6px;">
+                <button data-view="month" class="view-button active">Month</button>
+                <button data-view="week" class="view-button">Week</button>
+                <button data-view="day" class="view-button">Day</button>
+              </div>
+              <div style="margin-left:auto;display:flex;gap:8px;align-items:center;">
+                <button id="month-back" style="border:1px solid #cbd5e1;background:#fff;border-radius:999px;padding:6px 10px;cursor:pointer;">&#8592;</button>
+                <div id="month-label" style="font-weight:700;min-width:120px;text-align:center;"></div>
+                <button id="month-forward" style="border:1px solid #cbd5e1;background:#fff;border-radius:999px;padding:6px 10px;cursor:pointer;">&#8594;</button>
+              </div>
+            </div>
+            <div id="calendar" style="background:#fff;border:1px solid #e7ebf2;border-radius:16px;padding:16px;box-shadow:0 4px 12px rgba(15,23,42,0.04);"></div>
           </div>
         </div>
-        <div id="calendar" style="background:#ffffff;border:1px solid #e7ebf2;border-radius:16px;padding:16px;box-shadow:0 10px 30px rgba(15,23,42,0.04);"></div>
-        <div style="margin-top:18px;background:#ffffff;border:1px solid #e7ebf2;border-radius:16px;padding:16px;box-shadow:0 10px 30px rgba(15,23,42,0.04);">
-          <h2 style="margin:0 0 10px;font-size:20px;">Activities</h2>
-          <div id="activity-list" style="display:flex;flex-direction:column;gap:8px;"></div>
-        </div>
-        <div style="margin-top:18px;background:#ffffff;border:1px solid #e7ebf2;border-radius:16px;padding:16px;box-shadow:0 10px 30px rgba(15,23,42,0.04);">
-          <h3 style="margin:0 0 8px;font-size:16px;">Public content sources</h3>
-          <div style="font-size:13px;color:#64748b;">Events: ${contentSources.events.join(', ')}</div>
-          <div style="font-size:13px;color:#64748b;margin-top:6px;">Routes: ${contentSources.routes.join(', ')}</div>
-        </div>
-      </section>
-      <aside style="padding:24px;background:#ffffff;border-left:1px solid #e7ebf2;display:flex;flex-direction:column;gap:16px;">
         <div>
-          <h2 style="margin:0 0 8px;font-size:20px;">Filters</h2>
-          <div id="filters" style="display:flex;flex-wrap:wrap;gap:8px;"></div>
+          <div id="map" style="height:440px;border-radius:12px;overflow:hidden;border:1px solid #e7ebf2;position:relative;z-index:0;"></div>
+          <div id="details" style="margin-top:14px;border:1px solid #e7ebf2;border-radius:12px;padding:16px;background:#fbfcff;"></div>
         </div>
-        <div id="details" style="border:1px solid #e7ebf2;border-radius:12px;padding:16px;background:#fbfcff;"></div>
-        <div id="map" style="height:320px;border-radius:12px;overflow:hidden;border:1px solid #e7ebf2;"></div>
-      </aside>
+      </div>
+
+      <div style="margin-top:18px;background:#fff;border:1px solid #e7ebf2;border-radius:16px;padding:16px;box-shadow:0 4px 12px rgba(15,23,42,0.04);">
+        <h3 style="margin:0 0 8px;font-size:16px;">Public content sources</h3>
+        <div style="font-size:13px;color:#64748b;">Events: ${contentSources.events.join(', ')}</div>
+        <div style="font-size:13px;color:#64748b;margin-top:4px;">Routes: ${contentSources.routes.join(', ')}</div>
+        <div style="font-size:13px;color:#64748b;margin-top:4px;">Food &amp; Drink: ${contentSources.foodAndDrink.join(', ')}</div>
+        <div style="font-size:13px;color:#64748b;margin-top:4px;">Museums: ${contentSources.museums.join(', ')}</div>
+      </div>
     </div>
   `;
 
-  const buttons = root.querySelectorAll('.view-button');
-  buttons.forEach(button => {
+  const viewButtons = root.querySelectorAll('.view-button');
+  viewButtons.forEach(button => {
     button.addEventListener('click', () => {
-      buttons.forEach(b => b.classList.remove('active'));
+      viewButtons.forEach(b => b.classList.remove('active'));
       button.classList.add('active');
       state.view = button.dataset.view;
       render();
@@ -89,8 +111,14 @@ export function createApp(root) {
 
   async function loadData() {
     state.loading = true;
-    state.monthData = await loadMonthContent(getMonthKey(state.monthOffset));
-    state.loading = false;
+    state.monthData = await loadMonthContent(
+      getMonthKey(state.monthOffset),
+      (updatedData) => {
+        state.monthData = updatedData;
+        state.loading = false;
+        render();
+      }
+    );
     render();
   }
 
@@ -98,135 +126,283 @@ export function createApp(root) {
     const monthData = state.monthData || { events: [], routes: [] };
     const mergedActivities = [...monthData.events, ...monthData.routes];
     const currentMonthDate = getMonthDate(state.monthOffset);
+
+    // Unique, un-expanded items drive the list and the map (one entry per place).
     const filteredActivities = getFilteredActivities(mergedActivities);
-    const eventActivities = filteredActivities.filter(item => ['market', 'concert', 'event'].includes(item.category));
-    const activityIdeas = filteredActivities.filter(item => ['route', 'restaurant', 'brewery', 'walking-tour'].includes(item.category));
-    const calendarEl = root.querySelector('#calendar');
-    const activityListEl = root.querySelector('#activity-list');
-    const detailsEl = root.querySelector('#details');
-    const filtersEl = root.querySelector('#filters');
+    const uniqueActivities = filteredActivities
+      .slice()
+      .sort((a, b) => (a.day - b.day) || a.title.localeCompare(b.title));
+
+    // The calendar gets the recurring items expanded into one entry per day.
+    const calendarEvents = expandRecurringActivities(
+      filteredActivities.filter(item => eventCategories.includes(item.category)),
+      currentMonthDate
+    );
+    const showCalendar = state.selectedCategory === 'all' || eventCategories.includes(state.selectedCategory);
+
+    const loadingBar = root.querySelector('#loading-bar');
+    loadingBar.style.display = state.loading ? 'block' : 'none';
+
+    renderFilters();
+
+    const calendarSection = root.querySelector('#calendar-section');
+    calendarSection.style.display = showCalendar ? 'block' : 'none';
+    if (showCalendar) {
+      const calendarEl = root.querySelector('#calendar');
+      calendarEl.innerHTML = '';
+      createCalendarView(calendarEl, calendarEvents, state.view, state.selectedDay, (activity, day) => {
+        state.selectedActivityId = activity?.baseId ?? activity?.id ?? null;
+        state.selectedDay = day ?? state.selectedDay;
+        render();
+      }, currentMonthDate);
+      root.querySelector('#month-label').textContent = monthData.monthLabel || 'Loading…';
+    }
+
+    renderActivityList(uniqueActivities, showCalendar);
+
+    const selectedActivity = uniqueActivities.find(item => item.id === state.selectedActivityId) || uniqueActivities[0] || null;
+
     const mapEl = root.querySelector('#map');
-
-    calendarEl.innerHTML = '';
-    createCalendarView(calendarEl, eventActivities, state.view, state.selectedDay, (activity, day) => {
-      state.selectedActivityId = activity?.id ?? null;
-      state.selectedDay = day ?? state.selectedDay;
+    createMapView(mapEl, uniqueActivities, selectedActivity, (activity) => {
+      state.selectedActivityId = activity.id;
+      state.scrollToSelected = true;
       render();
-    }, currentMonthDate);
+    });
 
+    renderDetails(selectedActivity);
+  }
+
+  function renderFilters() {
+    const exploreFiltersEl = root.querySelector('#explore-filters');
+    const foodFiltersEl = root.querySelector('#food-filters');
+
+    exploreFiltersEl.innerHTML = '';
+    Object.entries(exploreCategoryLabels).forEach(([cat, label]) => {
+      const btn = document.createElement('button');
+      btn.textContent = label;
+      const isActive = state.selectedCategory === cat;
+      Object.assign(btn.style, {
+        padding: '6px 12px',
+        borderRadius: '999px',
+        border: '1px solid #cbd5e1',
+        background: isActive ? '#162033' : '#fff',
+        color: isActive ? '#fff' : '#162033',
+        cursor: 'pointer',
+        fontSize: '13px',
+        fontWeight: isActive ? '700' : '500'
+      });
+      btn.addEventListener('click', () => {
+        state.selectedCategory = cat;
+        state.selectedActivityId = null;
+        render();
+      });
+      exploreFiltersEl.appendChild(btn);
+    });
+
+    foodFiltersEl.innerHTML = '';
+    Object.entries(foodCategoryLabels).forEach(([cat, label]) => {
+      const btn = document.createElement('button');
+      btn.textContent = label;
+      const isActive = state.selectedCategory === cat;
+      Object.assign(btn.style, {
+        padding: '6px 12px',
+        borderRadius: '999px',
+        border: isActive ? '1px solid #c2410c' : '1px solid #fed7aa',
+        background: isActive ? '#ea580c' : '#fff7ed',
+        color: isActive ? '#fff' : '#9a3412',
+        cursor: 'pointer',
+        fontSize: '13px',
+        fontWeight: isActive ? '700' : '500'
+      });
+      btn.addEventListener('click', () => {
+        state.selectedCategory = cat;
+        state.selectedActivityId = null;
+        render();
+      });
+      foodFiltersEl.appendChild(btn);
+    });
+  }
+
+  function renderActivityList(displayActivities, showCalendar) {
+    const activityListEl = root.querySelector('#activity-list');
     activityListEl.innerHTML = '';
-    const activityHeading = document.createElement('div');
-    activityHeading.style.color = '#64748b';
-    activityHeading.style.fontSize = '13px';
-    activityHeading.style.marginBottom = '4px';
-    activityHeading.textContent = 'Routes, walking tours, breweries, and food stops';
-    activityListEl.appendChild(activityHeading);
 
-    activityIdeas.forEach(activity => {
+    const listItems = state.selectedCategory === 'all'
+      ? displayActivities
+      : displayActivities.filter(item =>
+          showCalendar
+            ? eventCategories.includes(item.category)
+            : nonCalendarCategories.includes(item.category)
+        );
+
+    if (!listItems.length) {
+      const empty = document.createElement('div');
+      empty.style.cssText = 'color:#64748b;font-size:13px;padding:8px 0;';
+      empty.textContent = state.loading
+        ? 'Loading activities…'
+        : 'No items match the selected category.';
+      activityListEl.appendChild(empty);
+      return;
+    }
+
+    let activeCard = null;
+    listItems.forEach(activity => {
       const card = document.createElement('button');
-      card.style.border = '1px solid #e2e8f0';
-      card.style.borderRadius = '10px';
-      card.style.background = state.selectedActivityId === activity.id ? '#eef4ff' : '#fbfdff';
-      card.style.padding = '10px 12px';
-      card.style.textAlign = 'left';
-      card.style.cursor = 'pointer';
-      card.innerHTML = `<div style="font-weight:700;">${activity.title}</div><div style="color:#64748b;font-size:13px;margin-top:4px;">${activity.dateLabel} · ${activity.location}</div>`;
+      const isActive = state.selectedActivityId === activity.id;
+      Object.assign(card.style, {
+        border: '1px solid ' + (isActive ? '#93c5fd' : '#e2e8f0'),
+        borderRadius: '10px',
+        background: isActive ? '#eef4ff' : '#fbfdff',
+        boxShadow: isActive ? '0 0 0 2px #bfdbfe' : 'none',
+        padding: '10px 12px',
+        textAlign: 'left',
+        cursor: 'pointer',
+        width: '100%'
+      });
+      const catColor = getCategoryDot(activity.category);
+      // Recurring items (markets, weekly concerts) show a schedule summary instead
+      // of a single date — the day-by-day breakdown lives in the calendar.
+      const summary = activity.repeatLabel || activity.dateLabel;
+      card.innerHTML = `
+        <div style="display:flex;align-items:center;gap:6px;">
+          <span style="width:8px;height:8px;border-radius:50%;background:${catColor};flex-shrink:0;"></span>
+          <span style="font-weight:700;font-size:14px;">${activity.title}</span>
+        </div>
+        <div style="color:#64748b;font-size:12px;margin-top:3px;padding-left:14px;">${summary} · ${activity.location}</div>
+      `;
       card.addEventListener('click', () => {
         state.selectedActivityId = activity.id;
         render();
       });
       activityListEl.appendChild(card);
+      if (isActive) activeCard = card;
     });
 
-    if (!activityIdeas.length) {
-      const empty = document.createElement('div');
-      empty.style.color = '#64748b';
-      empty.style.fontSize = '13px';
-      empty.textContent = 'No activity ideas in the current filter.';
-      activityListEl.appendChild(empty);
+    // When the selection came from clicking a map marker, bring its list row into view.
+    if (state.scrollToSelected && activeCard) {
+      activeCard.scrollIntoView({ block: 'nearest', behavior: 'smooth' });
     }
+    state.scrollToSelected = false;
+  }
 
-    filtersEl.innerHTML = '';
-    const categories = ['all', ...new Set(mergedActivities.map(item => item.category))];
-    categories.forEach(category => {
-      const button = document.createElement('button');
-      button.textContent = categoryLabels[category] || category;
-      button.style.padding = '6px 10px';
-      button.style.borderRadius = '999px';
-      button.style.border = '1px solid #cbd5e1';
-      button.style.background = category === state.selectedCategory ? '#162033' : '#ffffff';
-      button.style.color = category === state.selectedCategory ? '#ffffff' : '#162033';
-      button.style.cursor = 'pointer';
-      button.addEventListener('click', () => {
-        state.selectedCategory = category;
-        state.selectedActivityId = null;
-        render();
-      });
-      filtersEl.appendChild(button);
-    });
+  function getCategoryDot(category) {
+    const colors = {
+      route: '#059669', market: '#2563eb', concert: '#7c3aed',
+      event: '#dc2626', museum: '#9333ea', 'walking-tour': '#16a34a',
+      restaurant: '#ea580c', sandwich: '#d97706', coffeeshop: '#78350f',
+      brewery: '#b45309'
+    };
+    return colors[category] || '#64748b';
+  }
 
-    const selectedActivity = filteredActivities.find(item => item.id === state.selectedActivityId) || filteredActivities[0] || null;
-    if (selectedActivity) {
-      const routeDetailBlock = selectedActivity.routeSummary
-        ? `<div style="margin:10px 0;padding:10px 12px;border-radius:10px;background:#eef4ff;color:#24407a;font-size:13px;">${selectedActivity.routeSummary}</div>`
-        : '';
-      const metadataBlock = selectedActivity.duration || selectedActivity.distance
-        ? `<div style="display:flex;gap:8px;flex-wrap:wrap;margin:8px 0 0;color:#64748b;font-size:13px;">${selectedActivity.duration ? `<span>⏱ ${selectedActivity.duration}</span>` : ''}${selectedActivity.distance ? `<span>🗺 ${selectedActivity.distance}</span>` : ''}</div>`
-        : '';
-      const routeLinks = selectedActivity.sourceUrl || selectedActivity.mapUrl
-        ? `<div style="display:flex;gap:8px;flex-wrap:wrap;margin-top:8px;">
-            ${selectedActivity.sourceUrl ? `<a href="${selectedActivity.sourceUrl}" target="_blank" style="text-decoration:none;background:#2563eb;color:#fff;padding:8px 10px;border-radius:999px;font-size:13px;">Route details</a>` : ''}
-            ${selectedActivity.mapUrl ? `<a href="${selectedActivity.mapUrl}" target="_blank" style="text-decoration:none;background:#0f766e;color:#fff;padding:8px 10px;border-radius:999px;font-size:13px;">Open route in maps</a>` : ''}
-          </div>`
-        : '';
+  function renderDetails(selectedActivity) {
+    const detailsEl = root.querySelector('#details');
 
-      detailsEl.innerHTML = `
-        <h3 style="margin:0 0 8px;">${selectedActivity.title}</h3>
-        <p style="margin:0 0 8px;color:#4d5870;">${selectedActivity.dateLabel}</p>
-        <p style="margin:0 0 8px;">${selectedActivity.description}</p>
-        <p style="margin:0 0 8px;color:#4d5870;">${selectedActivity.location}</p>
-        ${routeDetailBlock}
-        ${metadataBlock}
-        <div style="display:flex;gap:8px;flex-wrap:wrap;margin-top:8px;">
-          <a href="https://www.google.com/maps/dir/?api=1&origin=Keizersgracht+61+Amsterdam&destination=${selectedActivity.lat},${selectedActivity.lng}&travelmode=bicycling" target="_blank" style="text-decoration:none;background:#162033;color:#fff;padding:8px 10px;border-radius:999px;font-size:13px;">Bike directions</a>
-          <a href="https://www.google.com/maps/dir/?api=1&origin=Keizersgracht+61+Amsterdam&destination=${selectedActivity.lat},${selectedActivity.lng}&travelmode=transit" target="_blank" style="text-decoration:none;background:#2563eb;color:#fff;padding:8px 10px;border-radius:999px;font-size:13px;">Metro directions</a>
-          <a href="https://maps.apple.com/?saddr=Keizersgracht+61+Amsterdam&daddr=${selectedActivity.lat},${selectedActivity.lng}" target="_blank" style="text-decoration:none;background:#0f766e;color:#fff;padding:8px 10px;border-radius:999px;font-size:13px;">Download to iPhone</a>
-          ${selectedActivity.category === 'walking-tour' ? `<a href="https://www.google.com/maps/dir/?api=1&origin=Keizersgracht+61+Amsterdam&destination=${selectedActivity.lat},${selectedActivity.lng}&travelmode=walking" target="_blank" style="text-decoration:none;background:#7c3aed;color:#fff;padding:8px 10px;border-radius:999px;font-size:13px;">Start walk</a>` : ''}
-        </div>
-        <div style="display:flex;gap:8px;flex-wrap:wrap;margin-top:8px;">
-          <button id="share-activity" style="border:0;background:#f59e0b;color:#fff;padding:8px 10px;border-radius:999px;font-size:13px;cursor:pointer;">Share</button>
-        </div>
-        ${routeLinks}
-      `;
-    } else {
+    if (!selectedActivity) {
       detailsEl.innerHTML = '<p style="margin:0;color:#4d5870;">Select an activity to see details.</p>';
+      return;
     }
+
+    const routeDetailBlock = selectedActivity.routeSummary
+      ? `<div style="margin:10px 0;padding:10px 12px;border-radius:10px;background:#eef4ff;color:#24407a;font-size:13px;">${selectedActivity.routeSummary}</div>`
+      : '';
+    const repeatLabelBlock = selectedActivity.repeatLabel
+      ? `<div style="margin:8px 0;color:#64748b;font-size:13px;">${selectedActivity.repeatLabel}</div>`
+      : '';
+    const metadataBlock = selectedActivity.duration || selectedActivity.distance
+      ? `<div style="display:flex;gap:8px;flex-wrap:wrap;margin:8px 0;color:#64748b;font-size:13px;">${selectedActivity.duration ? `<span>${selectedActivity.duration}</span>` : ''}${selectedActivity.distance ? `<span>${selectedActivity.distance}</span>` : ''}</div>`
+      : '';
+    const isRoute = selectedActivity.category === 'walking-tour' || selectedActivity.category === 'route';
+    const mapLinkLabel = isRoute ? 'Follow full route in Google Maps' : 'Open in maps';
+    const routeLinks = selectedActivity.sourceUrl || selectedActivity.mapUrl
+      ? `<div style="display:flex;gap:8px;flex-wrap:wrap;margin-top:8px;">
+          ${selectedActivity.mapUrl ? `<a href="${selectedActivity.mapUrl}" target="_blank" rel="noopener" style="text-decoration:none;background:#0f766e;color:#fff;padding:8px 10px;border-radius:999px;font-size:13px;">🧭 ${mapLinkLabel}</a>` : ''}
+          ${selectedActivity.sourceUrl ? `<a href="${selectedActivity.sourceUrl}" target="_blank" rel="noopener" style="text-decoration:none;background:#2563eb;color:#fff;padding:8px 10px;border-radius:999px;font-size:13px;">Route details</a>` : ''}
+        </div>`
+      : '';
+
+    const isFoodDrink = foodDrinkCategories.includes(selectedActivity.category);
+    const reviewQuery = encodeURIComponent(`${selectedActivity.title} ${selectedActivity.location} Amsterdam`);
+    const reviewBlock = (isFoodDrink || selectedActivity.featuredIn)
+      ? `<div style="margin-top:10px;padding-top:10px;border-top:1px solid #e7ebf2;">
+          <div style="font-size:12px;color:#64748b;margin-bottom:6px;">Research before you go</div>
+          <div style="display:flex;gap:8px;flex-wrap:wrap;">
+            ${isFoodDrink ? `<a href="https://www.google.com/maps/search/?api=1&query=${reviewQuery}" target="_blank" rel="noopener" style="text-decoration:none;background:#1a73e8;color:#fff;padding:8px 10px;border-radius:999px;font-size:13px;">★ Reviews &amp; ratings</a>` : ''}
+            ${isFoodDrink ? `<a href="https://www.tripadvisor.com/Search?q=${reviewQuery}" target="_blank" rel="noopener" style="text-decoration:none;background:#00aa6c;color:#fff;padding:8px 10px;border-radius:999px;font-size:13px;">Tripadvisor</a>` : ''}
+            ${selectedActivity.featuredIn ? `<a href="${selectedActivity.featuredUrl}" target="_blank" rel="noopener" style="text-decoration:none;background:#162033;color:#fff;padding:8px 10px;border-radius:999px;font-size:13px;">Featured in ${selectedActivity.featuredIn}</a>` : ''}
+          </div>
+        </div>`
+      : '';
+
+    detailsEl.innerHTML = `
+      <div style="display:flex;align-items:center;gap:8px;margin-bottom:8px;">
+        <span style="width:10px;height:10px;border-radius:50%;background:${getCategoryDot(selectedActivity.category)};"></span>
+        <h3 style="margin:0;">${selectedActivity.title}</h3>
+      </div>
+      <p style="margin:0 0 6px;color:#4d5870;font-size:14px;">${selectedActivity.dateLabel} · ${selectedActivity.location}</p>
+      ${repeatLabelBlock}
+      <p style="margin:0 0 8px;font-size:14px;">${selectedActivity.description}</p>
+      ${routeDetailBlock}
+      ${metadataBlock}
+      <div style="display:flex;gap:8px;flex-wrap:wrap;margin-top:10px;">
+        <a href="https://www.google.com/maps/dir/?api=1&origin=Keizersgracht+61+Amsterdam&destination=${selectedActivity.lat},${selectedActivity.lng}&travelmode=bicycling" target="_blank" rel="noopener" style="text-decoration:none;background:#162033;color:#fff;padding:8px 10px;border-radius:999px;font-size:13px;">Bike directions</a>
+        <a href="https://www.google.com/maps/dir/?api=1&origin=Keizersgracht+61+Amsterdam&destination=${selectedActivity.lat},${selectedActivity.lng}&travelmode=transit" target="_blank" rel="noopener" style="text-decoration:none;background:#2563eb;color:#fff;padding:8px 10px;border-radius:999px;font-size:13px;">Transit directions</a>
+        <a href="https://maps.apple.com/?saddr=Keizersgracht+61+Amsterdam&daddr=${selectedActivity.lat},${selectedActivity.lng}" target="_blank" rel="noopener" style="text-decoration:none;background:#0f766e;color:#fff;padding:8px 10px;border-radius:999px;font-size:13px;">Apple Maps</a>
+        ${selectedActivity.category === 'walking-tour' ? `<a href="https://www.google.com/maps/dir/?api=1&origin=Keizersgracht+61+Amsterdam&destination=${selectedActivity.lat},${selectedActivity.lng}&travelmode=walking" target="_blank" rel="noopener" style="text-decoration:none;background:#7c3aed;color:#fff;padding:8px 10px;border-radius:999px;font-size:13px;">Start walk</a>` : ''}
+      </div>
+      <div style="display:flex;gap:8px;flex-wrap:wrap;margin-top:8px;">
+        <button id="share-activity" style="border:0;background:#f59e0b;color:#fff;padding:8px 10px;border-radius:999px;font-size:13px;cursor:pointer;">Share</button>
+      </div>
+      ${routeLinks}
+      ${reviewBlock}
+    `;
 
     const shareButton = root.querySelector('#share-activity');
-    if (shareButton && selectedActivity) {
+    if (shareButton) {
       shareButton.addEventListener('click', async () => {
         const shareText = `${selectedActivity.title} — ${selectedActivity.dateLabel} — ${selectedActivity.location}`;
         const shareUrl = selectedActivity.sourceUrl || `https://maps.google.com/?q=${selectedActivity.lat},${selectedActivity.lng}`;
         if (navigator.share) {
-          try {
-            await navigator.share({ title: selectedActivity.title, text: shareText, url: shareUrl });
-          } catch (error) {
-            console.info('Share cancelled', error);
-          }
+          try { await navigator.share({ title: selectedActivity.title, text: shareText, url: shareUrl }); }
+          catch (e) { console.info('Share cancelled', e); }
         } else {
           window.open(`https://wa.me/?text=${encodeURIComponent(`${shareText}\n${shareUrl}`)}`, '_blank');
         }
       });
     }
-
-    root.querySelector('#month-label').textContent = state.monthData ? state.monthData.monthLabel : 'Loading…';
-
-    createMapView(mapEl, filteredActivities, selectedActivity);
   }
 
   function getFilteredActivities(mergedActivities) {
     if (state.selectedCategory === 'all') return mergedActivities;
     return mergedActivities.filter(item => item.category === state.selectedCategory);
+  }
+
+  function expandRecurringActivities(activities, currentMonthDate) {
+    const year = currentMonthDate.getFullYear();
+    const month = currentMonthDate.getMonth();
+    const daysInMonth = new Date(year, month + 1, 0).getDate();
+    const expanded = [];
+
+    activities.forEach(activity => {
+      if (Array.isArray(activity.repeatDaysOfWeek) && activity.repeatDaysOfWeek.length) {
+        for (let day = 1; day <= daysInMonth; day += 1) {
+          const date = new Date(year, month, day);
+          if (activity.repeatDaysOfWeek.includes(date.getDay())) {
+            expanded.push({
+              ...activity,
+              id: `${activity.id}-${day}`,
+              baseId: activity.id,
+              day,
+              dateLabel: `${date.toLocaleString('en-US', { weekday: 'short' })} ${day} ${date.toLocaleString('en-US', { month: 'short' })}`
+            });
+          }
+        }
+      } else {
+        expanded.push({ ...activity, baseId: activity.id });
+      }
+    });
+
+    return expanded.sort((a, b) => a.day - b.day || a.title.localeCompare(b.title));
   }
 
   function getMonthDate(offset) {

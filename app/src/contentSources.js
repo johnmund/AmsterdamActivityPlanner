@@ -3,13 +3,21 @@ export const contentSources = {
     'I amsterdam events calendar',
     'Amsterdam.info events',
     'Eventbrite Amsterdam',
-    'Meetup Amsterdam',
     'Time Out Amsterdam'
   ],
   routes: [
     'I amsterdam walking and cycling routes',
-    'I amsterdam public art walking route',
-    'Amsterdam bike route guides',
-    'Local cycling maps and route pages'
+    'Amsterdam bike route guides'
+  ],
+  foodAndDrink: [
+    'Yolo Little Black Book (Apple Maps guide)',
+    'Time Out Amsterdam best restaurants',
+    'The Infatuation Amsterdam guide',
+    'TripAdvisor Amsterdam top-rated',
+    'Iens / TheFork Amsterdam'
+  ],
+  museums: [
+    'I amsterdam museum guide',
+    'Museumkaart listings'
   ]
 };

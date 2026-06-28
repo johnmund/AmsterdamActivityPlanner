@@ -1,5 +1,7 @@
 import { activities as staticActivities } from '../data/activities.js';
 
+const cache = new Map();
+
 function toSnippet(text) {
   return text
     .replace(/<[^>]+>/g, ' ')
@@ -14,23 +16,19 @@ async function fetchLiveCandidate(sourceUrl, category) {
 
   try {
     const response = await fetch(proxiedUrl, {
-      headers: { Accept: 'text/plain' }
+      headers: { Accept: 'text/plain' },
+      signal: AbortSignal.timeout(8000)
     });
 
-    if (!response.ok) {
-      throw new Error(`Fetch failed with ${response.status}`);
-    }
+    if (!response.ok) throw new Error(`Fetch failed with ${response.status}`);
 
     const rawText = await response.text();
     const snippet = toSnippet(rawText);
     const host = new URL(sourceUrl).hostname.replace(/^www\./, '');
-    const title = category === 'event'
-      ? `Live event idea from ${host}`
-      : `Live route idea from ${host}`;
 
     return {
-      id: `live-${category}-${Date.now()}`,
-      title,
+      id: `live-${category}-${Date.now()}-${Math.random().toString(36).slice(2, 6)}`,
+      title: `Live ${category} idea from ${host}`,
       category,
       day: 1,
       dateLabel: 'Live source',
@@ -38,7 +36,7 @@ async function fetchLiveCandidate(sourceUrl, category) {
       location: host,
       lat: 52.3676,
       lng: 4.9041,
-      sourceUrl: sourceUrl,
+      sourceUrl,
       sourceLabel: 'Live source preview',
       month: 'dynamic'
     };
@@ -48,7 +46,25 @@ async function fetchLiveCandidate(sourceUrl, category) {
   }
 }
 
-export async function loadMonthContent(monthKey) {
+function buildStaticContent(monthKey) {
+  const eventCategories = ['market', 'concert', 'event'];
+  const seededEvents = staticActivities.filter(item => eventCategories.includes(item.category));
+  const seededOther = staticActivities.filter(item => !eventCategories.includes(item.category));
+
+  return {
+    monthLabel: monthKey,
+    events: seededEvents.map(item => ({ ...item, sourceLabel: 'Seeded planner content', month: monthKey })),
+    routes: seededOther.map(item => ({ ...item, sourceLabel: 'Seeded planner content', month: 'static' }))
+  };
+}
+
+export async function loadMonthContent(monthKey, onUpdate) {
+  if (cache.has(monthKey)) {
+    return cache.get(monthKey);
+  }
+
+  const staticContent = buildStaticContent(monthKey);
+
   const eventSources = [
     'https://www.iamsterdam.com/en/whats-on/calendar',
     'https://www.amsterdam.info/events/',
@@ -60,34 +76,26 @@ export async function loadMonthContent(monthKey) {
     'https://www.iamsterdam.com/en/see-and-do/nature-and-active/walking-and-cycling-routes/public-art-walking-route'
   ];
 
-  const monthLabel = monthKey;
-  const seededEvents = staticActivities.filter(item => ['market', 'concert', 'event'].includes(item.category));
-  const seededRoutes = staticActivities.filter(item => ['route', 'walking-tour', 'brewery'].includes(item.category));
+  Promise.all([
+    ...eventSources.map(s => fetchLiveCandidate(s, 'event')),
+    ...routeSources.map(s => fetchLiveCandidate(s, 'route'))
+  ]).then(results => {
+    const live = results.filter(Boolean);
+    const eventCats = ['market', 'concert', 'event'];
+    const liveEvents = live.filter(r => eventCats.includes(r.category));
+    const liveRoutes = live.filter(r => !eventCats.includes(r.category));
 
-  const eventCandidates = seededEvents.map(item => ({
-    ...item,
-    sourceLabel: 'Seeded planner content',
-    month: monthLabel
-  }));
+    const merged = {
+      ...staticContent,
+      events: [...staticContent.events, ...liveEvents],
+      routes: [...staticContent.routes, ...liveRoutes]
+    };
+    cache.set(monthKey, merged);
+    if (onUpdate) onUpdate(merged);
+  }).catch(() => {
+    cache.set(monthKey, staticContent);
+    if (onUpdate) onUpdate(staticContent);
+  });
 
-  const routeCandidates = seededRoutes.map(item => ({
-    ...item,
-    sourceLabel: 'Seeded planner content',
-    month: 'static'
-  }));
-
-  const liveEventCandidates = (await Promise.all(eventSources.map(source => fetchLiveCandidate(source, 'event'))))
-    .filter(Boolean);
-  const liveRouteCandidates = (await Promise.all(routeSources.map(source => fetchLiveCandidate(source, 'route'))))
-    .filter(Boolean);
-
-  const monthContent = {
-    monthLabel,
-    events: [...eventCandidates, ...liveEventCandidates],
-    routes: [...routeCandidates, ...liveRouteCandidates],
-    eventSources,
-    routeSources
-  };
-
-  return monthContent;
+  return staticContent;
 }
