@@ -19,11 +19,12 @@ const foodCategoryLabels = {
   restaurant: 'Restaurants',
   sandwich: 'Sandwiches',
   coffeeshop: 'Coffee shops',
-  brewery: 'Breweries'
+  brewery: 'Breweries',
+  grocery: 'Groceries'
 };
 
 const eventCategories = ['market', 'concert', 'event'];
-const nonCalendarCategories = ['highlight', 'park', 'route', 'walking-tour', 'brewery', 'restaurant', 'sandwich', 'coffeeshop', 'museum'];
+const nonCalendarCategories = ['highlight', 'park', 'route', 'walking-tour', 'brewery', 'restaurant', 'sandwich', 'coffeeshop', 'museum', 'grocery'];
 const foodDrinkCategories = ['restaurant', 'sandwich', 'coffeeshop', 'brewery'];
 // Categories that benefit from "research before you go" review links.
 const researchCategories = [...foodDrinkCategories, 'museum', 'highlight', 'park'];
@@ -316,7 +317,7 @@ export function createApp(root) {
       highlight: '#e11d48', park: '#0d9488', route: '#059669', market: '#2563eb', concert: '#7c3aed',
       event: '#dc2626', museum: '#9333ea', 'walking-tour': '#16a34a',
       restaurant: '#ea580c', sandwich: '#d97706', coffeeshop: '#78350f',
-      brewery: '#b45309'
+      brewery: '#b45309', grocery: '#65a30d'
     };
     return colors[category] || '#64748b';
   }

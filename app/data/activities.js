@@ -1290,5 +1290,62 @@ export const activities = [
     location: 'Zuidoost',
     lat: 52.3110,
     lng: 4.9930
+  },
+
+  // === GROCERIES (supermarkets near home base, Keizersgracht 61) ===
+  {
+    id: 'grocery-ah-haarlemmerdijk',
+    title: 'Albert Heijn – Haarlemmerdijk',
+    category: 'grocery',
+    day: 1,
+    dateLabel: 'Open daily ~8:00–22:00',
+    description: 'The Netherlands’ main supermarket chain. Closest large Albert Heijn just north of home, on lively Haarlemmerdijk.',
+    location: 'Haarlemmerdijk 1 (~5 min walk)',
+    lat: 52.3833,
+    lng: 4.8917
+  },
+  {
+    id: 'grocery-ah-westerstraat',
+    title: 'Albert Heijn – Westerstraat',
+    category: 'grocery',
+    day: 1,
+    dateLabel: 'Open daily ~8:00–22:00',
+    description: 'Handy Albert Heijn in the Jordaan, a short walk west of the canal belt.',
+    location: 'Westerstraat 79 (~6 min walk)',
+    lat: 52.3787,
+    lng: 4.8830
+  },
+  {
+    id: 'grocery-ah-nz-voorburgwal',
+    title: 'Albert Heijn – Nieuwezijds Voorburgwal',
+    category: 'grocery',
+    day: 1,
+    dateLabel: 'Open daily ~8:00–22:00',
+    description: 'Large Albert Heijn towards the centre, useful for a bigger shop.',
+    location: 'Nieuwezijds Voorburgwal 226',
+    lat: 52.3730,
+    lng: 4.8907
+  },
+  {
+    id: 'grocery-dirk-marnixstraat',
+    title: 'Dirk van den Broek – Marnixstraat',
+    category: 'grocery',
+    day: 1,
+    dateLabel: 'Open daily ~8:00–21:00',
+    description: 'Budget Dutch supermarket — noticeably cheaper than Albert Heijn for a weekly shop.',
+    location: 'Marnixstraat 41',
+    lat: 52.3762,
+    lng: 4.8782
+  },
+  {
+    id: 'grocery-ekoplaza',
+    title: 'Ekoplaza – Haarlemmerdijk',
+    category: 'grocery',
+    day: 1,
+    dateLabel: 'Open daily',
+    description: 'Organic supermarket for whole foods, fresh bread, and local produce near home.',
+    location: 'Haarlemmerdijk',
+    lat: 52.3835,
+    lng: 4.8905
   }
 ];

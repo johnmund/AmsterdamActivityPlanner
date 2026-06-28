@@ -10,7 +10,8 @@ const categoryColors = {
   restaurant: '#ea580c',
   sandwich: '#d97706',
   coffeeshop: '#78350f',
-  brewery: '#b45309'
+  brewery: '#b45309',
+  grocery: '#65a30d'
 };
 
 let mapInstance = null;
