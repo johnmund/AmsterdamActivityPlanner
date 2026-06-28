@@ -19,5 +19,10 @@ export const contentSources = {
   museums: [
     'I amsterdam museum guide',
     'Museumkaart listings'
+  ],
+  highlights: [
+    'TripAdvisor top attractions',
+    'Time Out best things to do',
+    'I amsterdam things to do'
   ]
 };

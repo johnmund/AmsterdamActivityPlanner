@@ -5,6 +5,8 @@ import { contentSources } from './contentSources.js';
 
 const exploreCategoryLabels = {
   all: 'All',
+  highlight: 'Highlights',
+  park: 'Parks',
   route: 'Routes',
   market: 'Markets',
   concert: 'Concerts',
@@ -21,13 +23,16 @@ const foodCategoryLabels = {
 };
 
 const eventCategories = ['market', 'concert', 'event'];
-const nonCalendarCategories = ['route', 'walking-tour', 'brewery', 'restaurant', 'sandwich', 'coffeeshop', 'museum'];
+const nonCalendarCategories = ['highlight', 'park', 'route', 'walking-tour', 'brewery', 'restaurant', 'sandwich', 'coffeeshop', 'museum'];
 const foodDrinkCategories = ['restaurant', 'sandwich', 'coffeeshop', 'brewery'];
+// Categories that benefit from "research before you go" review links.
+const researchCategories = [...foodDrinkCategories, 'museum', 'highlight', 'park'];
 
 export function createApp(root) {
   const state = {
     selectedCategory: 'all',
     selectedActivityId: null,
+    detailsMode: 'activity', // 'activity' | 'day'
     view: 'month',
     selectedDay: 1,
     monthOffset: 0,
@@ -44,7 +49,7 @@ export function createApp(root) {
       <div id="food-filters" style="display:flex;flex-wrap:wrap;gap:6px;margin-bottom:14px;"></div>
 
       <div id="loading-bar" class="loading-pulse" style="padding:10px 14px;background:#fef3c7;border:1px solid #fde68a;border-radius:10px;margin-bottom:14px;font-size:13px;color:#92400e;">
-        Fetching live content…
+        Loading activities…
       </div>
 
       <div style="display:grid;grid-template-columns:1fr 1fr;gap:16px;">
@@ -81,6 +86,7 @@ export function createApp(root) {
         <div style="font-size:13px;color:#64748b;margin-top:4px;">Routes: ${contentSources.routes.join(', ')}</div>
         <div style="font-size:13px;color:#64748b;margin-top:4px;">Food &amp; Drink: ${contentSources.foodAndDrink.join(', ')}</div>
         <div style="font-size:13px;color:#64748b;margin-top:4px;">Museums: ${contentSources.museums.join(', ')}</div>
+        <div style="font-size:13px;color:#64748b;margin-top:4px;">Highlights: ${contentSources.highlights.join(', ')}</div>
       </div>
     </div>
   `;
@@ -98,12 +104,14 @@ export function createApp(root) {
   root.querySelector('#month-back').addEventListener('click', () => {
     state.monthOffset -= 1;
     state.selectedActivityId = null;
+    state.detailsMode = 'activity';
     loadData();
   });
 
   root.querySelector('#month-forward').addEventListener('click', () => {
     state.monthOffset += 1;
     state.selectedActivityId = null;
+    state.detailsMode = 'activity';
     loadData();
   });
 
@@ -111,14 +119,9 @@ export function createApp(root) {
 
   async function loadData() {
     state.loading = true;
-    state.monthData = await loadMonthContent(
-      getMonthKey(state.monthOffset),
-      (updatedData) => {
-        state.monthData = updatedData;
-        state.loading = false;
-        render();
-      }
-    );
+    render();
+    state.monthData = await loadMonthContent(getMonthKey(state.monthOffset));
+    state.loading = false;
     render();
   }
 
@@ -145,31 +148,50 @@ export function createApp(root) {
 
     renderFilters();
 
+    const dayMode = state.detailsMode === 'day' && showCalendar;
+
     const calendarSection = root.querySelector('#calendar-section');
     calendarSection.style.display = showCalendar ? 'block' : 'none';
     if (showCalendar) {
       const calendarEl = root.querySelector('#calendar');
       calendarEl.innerHTML = '';
       createCalendarView(calendarEl, calendarEvents, state.view, state.selectedDay, (activity, day) => {
+        // A specific event tag was clicked — select that activity.
         state.selectedActivityId = activity?.baseId ?? activity?.id ?? null;
         state.selectedDay = day ?? state.selectedDay;
+        state.detailsMode = 'activity';
         render();
-      }, currentMonthDate);
+      }, currentMonthDate, {
+        selectedBaseId: dayMode ? null : state.selectedActivityId,
+        onSelectDay: (day) => {
+          // A day cell was clicked — summarise everything happening that day.
+          state.selectedDay = day;
+          state.detailsMode = 'day';
+          render();
+        }
+      });
       root.querySelector('#month-label').textContent = monthData.monthLabel || 'Loading…';
     }
 
     renderActivityList(uniqueActivities, showCalendar);
 
-    const selectedActivity = uniqueActivities.find(item => item.id === state.selectedActivityId) || uniqueActivities[0] || null;
+    const selectedActivity = dayMode
+      ? null
+      : (uniqueActivities.find(item => item.id === state.selectedActivityId) || uniqueActivities[0] || null);
 
     const mapEl = root.querySelector('#map');
     createMapView(mapEl, uniqueActivities, selectedActivity, (activity) => {
       state.selectedActivityId = activity.id;
+      state.detailsMode = 'activity';
       state.scrollToSelected = true;
       render();
     });
 
-    renderDetails(selectedActivity);
+    if (dayMode) {
+      renderDayDetails(state.selectedDay, calendarEvents.filter(e => e.day === state.selectedDay), currentMonthDate);
+    } else {
+      renderDetails(selectedActivity);
+    }
   }
 
   function renderFilters() {
@@ -194,6 +216,7 @@ export function createApp(root) {
       btn.addEventListener('click', () => {
         state.selectedCategory = cat;
         state.selectedActivityId = null;
+        state.detailsMode = 'activity';
         render();
       });
       exploreFiltersEl.appendChild(btn);
@@ -217,6 +240,7 @@ export function createApp(root) {
       btn.addEventListener('click', () => {
         state.selectedCategory = cat;
         state.selectedActivityId = null;
+        state.detailsMode = 'activity';
         render();
       });
       foodFiltersEl.appendChild(btn);
@@ -272,6 +296,8 @@ export function createApp(root) {
       `;
       card.addEventListener('click', () => {
         state.selectedActivityId = activity.id;
+        state.detailsMode = 'activity';
+        state.selectedDay = activity.day || state.selectedDay;
         render();
       });
       activityListEl.appendChild(card);
@@ -287,7 +313,7 @@ export function createApp(root) {
 
   function getCategoryDot(category) {
     const colors = {
-      route: '#059669', market: '#2563eb', concert: '#7c3aed',
+      highlight: '#e11d48', park: '#0d9488', route: '#059669', market: '#2563eb', concert: '#7c3aed',
       event: '#dc2626', museum: '#9333ea', 'walking-tour': '#16a34a',
       restaurant: '#ea580c', sandwich: '#d97706', coffeeshop: '#78350f',
       brewery: '#b45309'
@@ -321,14 +347,14 @@ export function createApp(root) {
         </div>`
       : '';
 
-    const isFoodDrink = foodDrinkCategories.includes(selectedActivity.category);
+    const showResearch = researchCategories.includes(selectedActivity.category);
     const reviewQuery = encodeURIComponent(`${selectedActivity.title} ${selectedActivity.location} Amsterdam`);
-    const reviewBlock = (isFoodDrink || selectedActivity.featuredIn)
+    const reviewBlock = (showResearch || selectedActivity.featuredIn)
       ? `<div style="margin-top:10px;padding-top:10px;border-top:1px solid #e7ebf2;">
           <div style="font-size:12px;color:#64748b;margin-bottom:6px;">Research before you go</div>
           <div style="display:flex;gap:8px;flex-wrap:wrap;">
-            ${isFoodDrink ? `<a href="https://www.google.com/maps/search/?api=1&query=${reviewQuery}" target="_blank" rel="noopener" style="text-decoration:none;background:#1a73e8;color:#fff;padding:8px 10px;border-radius:999px;font-size:13px;">★ Reviews &amp; ratings</a>` : ''}
-            ${isFoodDrink ? `<a href="https://www.tripadvisor.com/Search?q=${reviewQuery}" target="_blank" rel="noopener" style="text-decoration:none;background:#00aa6c;color:#fff;padding:8px 10px;border-radius:999px;font-size:13px;">Tripadvisor</a>` : ''}
+            ${showResearch ? `<a href="https://www.google.com/maps/search/?api=1&query=${reviewQuery}" target="_blank" rel="noopener" style="text-decoration:none;background:#1a73e8;color:#fff;padding:8px 10px;border-radius:999px;font-size:13px;">★ Reviews &amp; ratings</a>` : ''}
+            ${showResearch ? `<a href="https://www.tripadvisor.com/Search?q=${reviewQuery}" target="_blank" rel="noopener" style="text-decoration:none;background:#00aa6c;color:#fff;padding:8px 10px;border-radius:999px;font-size:13px;">Tripadvisor</a>` : ''}
             ${selectedActivity.featuredIn ? `<a href="${selectedActivity.featuredUrl}" target="_blank" rel="noopener" style="text-decoration:none;background:#162033;color:#fff;padding:8px 10px;border-radius:999px;font-size:13px;">Featured in ${selectedActivity.featuredIn}</a>` : ''}
           </div>
         </div>`
@@ -370,6 +396,45 @@ export function createApp(root) {
         }
       });
     }
+  }
+
+  function renderDayDetails(day, dayEvents, currentMonthDate) {
+    const detailsEl = root.querySelector('#details');
+    const date = new Date(currentMonthDate.getFullYear(), currentMonthDate.getMonth(), day);
+    const heading = date.toLocaleString('en-US', { weekday: 'long', day: 'numeric', month: 'long' });
+
+    if (!dayEvents.length) {
+      detailsEl.innerHTML = `
+        <h3 style="margin:0 0 6px;">${heading}</h3>
+        <p style="margin:0;color:#4d5870;">Nothing on the calendar for this day in the current filter.</p>`;
+      return;
+    }
+
+    detailsEl.innerHTML = `
+      <h3 style="margin:0 0 4px;">${heading}</h3>
+      <p style="margin:0 0 10px;color:#64748b;font-size:13px;">${dayEvents.length} thing${dayEvents.length > 1 ? 's' : ''} on this day · tap one for details</p>
+      <div id="day-events" style="display:flex;flex-direction:column;gap:8px;"></div>`;
+
+    const wrap = detailsEl.querySelector('#day-events');
+    dayEvents.forEach(event => {
+      const card = document.createElement('button');
+      Object.assign(card.style, {
+        border: '1px solid #e2e8f0', borderRadius: '10px', background: '#fbfdff',
+        padding: '10px 12px', textAlign: 'left', cursor: 'pointer', width: '100%'
+      });
+      card.innerHTML = `
+        <div style="display:flex;align-items:center;gap:6px;">
+          <span style="width:8px;height:8px;border-radius:50%;background:${getCategoryDot(event.category)};flex-shrink:0;"></span>
+          <span style="font-weight:700;font-size:14px;">${event.title}</span>
+        </div>
+        <div style="color:#64748b;font-size:12px;margin-top:3px;padding-left:14px;">${event.dateLabel} · ${event.location}</div>`;
+      card.addEventListener('click', () => {
+        state.selectedActivityId = event.baseId || event.id;
+        state.detailsMode = 'activity';
+        render();
+      });
+      wrap.appendChild(card);
+    });
   }
 
   function getFilteredActivities(mergedActivities) {

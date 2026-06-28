@@ -1,4 +1,6 @@
 const categoryColors = {
+  highlight: '#e11d48',
+  park: '#0d9488',
   route: '#059669',
   market: '#2563eb',
   concert: '#7c3aed',

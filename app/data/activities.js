@@ -1011,5 +1011,284 @@ export const activities = [
     location: 'De Pijp',
     lat: 52.3555,
     lng: 4.8955
+  },
+
+  // === HIGHLIGHTS (top things to do — TripAdvisor / Time Out / I amsterdam) ===
+  {
+    id: 'highlight-canal-cruise',
+    title: 'Canal cruise',
+    category: 'highlight',
+    day: 1,
+    dateLabel: 'Daily, departures all day',
+    description: 'Often called the best way to see Amsterdam. Boats leave from Centraal and the canal belt — a 75-minute tour is the sweet spot.',
+    location: 'Departs near Centraal Station',
+    lat: 52.3770,
+    lng: 4.8990
+  },
+  {
+    id: 'highlight-adam-lookout',
+    title: 'A\'DAM Lookout',
+    category: 'highlight',
+    day: 1,
+    dateLabel: 'Open daily 10:00–22:00',
+    description: '360° observation deck atop the A\'DAM Toren in Noord, with “Over the Edge” — Europe’s highest swing.',
+    location: 'Overhoeksplein 5, Noord',
+    lat: 52.3838,
+    lng: 4.9036
+  },
+  {
+    id: 'highlight-jordaan',
+    title: 'The Jordaan',
+    category: 'highlight',
+    day: 1,
+    dateLabel: 'Any time',
+    description: 'Picture-perfect 17th-century neighbourhood of narrow canals, leafy streets, courtyards, brown cafés, and boutiques.',
+    location: 'Jordaan',
+    lat: 52.3745,
+    lng: 4.8820
+  },
+  {
+    id: 'highlight-nine-streets',
+    title: 'De Negen Straatjes (The Nine Streets)',
+    category: 'highlight',
+    day: 1,
+    dateLabel: 'Shops daily',
+    description: 'A charming grid of nine little streets across the canal belt, packed with independent boutiques, vintage shops, and cafés.',
+    location: 'Canal belt, near Jordaan',
+    lat: 52.3685,
+    lng: 4.8865
+  },
+  {
+    id: 'highlight-begijnhof',
+    title: 'Begijnhof',
+    category: 'highlight',
+    day: 1,
+    dateLabel: 'Open daily 9:00–17:00',
+    description: 'A hidden medieval courtyard of historic houses and gardens, tucked just off the busy Spui — an oasis of calm.',
+    location: 'Begijnhof, city centre',
+    lat: 52.3690,
+    lng: 4.8902
+  },
+  {
+    id: 'highlight-wallen',
+    title: 'Red Light District (De Wallen)',
+    category: 'highlight',
+    day: 1,
+    dateLabel: 'Any time',
+    description: 'Amsterdam’s oldest quarter — striking 14th-century architecture, narrow alleys, the Oude Kerk, and a famous nightlife scene.',
+    location: 'De Wallen, city centre',
+    lat: 52.3736,
+    lng: 4.8990
+  },
+  {
+    id: 'highlight-attic',
+    title: 'Our Lord in the Attic',
+    category: 'highlight',
+    day: 1,
+    dateLabel: 'Open daily 10:00–18:00',
+    description: 'A perfectly preserved 17th-century canal house hiding a secret Catholic church across its top floors.',
+    location: 'Oudezijds Voorburgwal 38',
+    lat: 52.3746,
+    lng: 4.8997
+  },
+  {
+    id: 'highlight-ndsm',
+    title: 'NDSM Wharf',
+    category: 'highlight',
+    day: 1,
+    dateLabel: 'Any time',
+    description: 'A former shipyard in Noord turned cultural hub — street art, STRAAT museum, waterfront bars, festivals, and the IJ-Hallen flea market.',
+    location: 'NDSM-Plein, Noord',
+    lat: 52.4008,
+    lng: 4.8930
+  },
+  {
+    id: 'highlight-nieuwmarkt',
+    title: 'Nieuwmarkt & De Waag',
+    category: 'highlight',
+    day: 1,
+    dateLabel: 'Any time',
+    description: 'Lively historic square anchored by the medieval De Waag weigh house, ringed by terraces and cafés.',
+    location: 'Nieuwmarkt, city centre',
+    lat: 52.3725,
+    lng: 4.9006
+  },
+  {
+    id: 'highlight-westergas',
+    title: 'Westergas (Westerpark)',
+    category: 'highlight',
+    day: 1,
+    dateLabel: 'Any time',
+    description: 'Cultural park in a former gasworks — art-house cinema, coffee roastery, microbrewery, festivals, and big green lawns.',
+    location: 'Westerpark',
+    lat: 52.3866,
+    lng: 4.8716
+  },
+  {
+    id: 'highlight-heineken',
+    title: 'Heineken Experience',
+    category: 'highlight',
+    day: 1,
+    dateLabel: 'Open daily 10:30–19:30',
+    description: 'Interactive tour of the original Heineken brewery in De Pijp, ending with tastings.',
+    location: 'Stadhouderskade 78, De Pijp',
+    lat: 52.3578,
+    lng: 4.8919
+  },
+
+  // === PARKS (TripAdvisor / Time Out / I amsterdam) ===
+  {
+    id: 'park-vondelpark',
+    title: 'Vondelpark',
+    category: 'park',
+    day: 1,
+    dateLabel: 'Open daily',
+    description: 'Amsterdam’s most famous park — 10M visitors a year. Ponds, ancient trees, a rose garden, cafés, and free open-air summer concerts.',
+    location: 'Oud-Zuid / Oud-West',
+    lat: 52.3580,
+    lng: 4.8686
+  },
+  {
+    id: 'park-westerpark',
+    title: 'Westerpark',
+    category: 'park',
+    day: 1,
+    dateLabel: 'Open daily',
+    description: 'Green space on a former gasworks blending nature with culture — ponds, gardens, cafés, cinema, and the Westergas complex with frequent festivals.',
+    location: 'West',
+    lat: 52.3873,
+    lng: 4.8740
+  },
+  {
+    id: 'park-oosterpark',
+    title: 'Oosterpark',
+    category: 'park',
+    day: 1,
+    dateLabel: 'Open daily',
+    description: 'Leafy, multicultural park with ponds, a wading pool, the National Slavery Monument, and summer festivals like Keti Koti.',
+    location: 'Oost',
+    lat: 52.3589,
+    lng: 4.9210
+  },
+  {
+    id: 'park-sarphatipark',
+    title: 'Sarphatipark',
+    category: 'park',
+    day: 1,
+    dateLabel: 'Open daily',
+    description: 'Compact, English-inspired park in De Pijp with rolling lawns and ponds — a perfect rest stop right by the Albert Cuypmarkt.',
+    location: 'De Pijp',
+    lat: 52.3548,
+    lng: 4.8945
+  },
+  {
+    id: 'park-frankendael',
+    title: 'Park Frankendael',
+    category: 'park',
+    day: 1,
+    dateLabel: 'Open daily',
+    description: 'Amsterdam’s only remaining 17th-century country estate — formal gardens, a manor house, allotments, and the Sunday Pure Markt.',
+    location: 'Watergraafsmeer, Oost',
+    lat: 52.3512,
+    lng: 4.9308
+  },
+  {
+    id: 'park-amsterdamse-bos',
+    title: 'Amsterdamse Bos',
+    category: 'park',
+    day: 1,
+    dateLabel: 'Open daily',
+    description: 'A vast forest park (three times Central Park) with the Bosbaan rowing lake, swimming ponds, an open-air theatre, goat farm, and cycling trails.',
+    location: 'Amstelveen, south of the city',
+    lat: 52.3230,
+    lng: 4.8350
+  },
+  {
+    id: 'park-flevopark',
+    title: 'Flevopark',
+    category: 'park',
+    day: 1,
+    dateLabel: 'Open daily',
+    description: 'Sporty eastern park with an outdoor swimming pool, wild-swimming water, tennis courts, BBQ spots, and the Distilleerderij ’t Nieuwe Diep.',
+    location: 'Oost',
+    lat: 52.3590,
+    lng: 4.9420
+  },
+  {
+    id: 'park-rembrandtpark',
+    title: 'Rembrandtpark',
+    category: 'park',
+    day: 1,
+    dateLabel: 'Open daily',
+    description: 'Quiet neighbourhood park in the west with ponds, walking and cycling paths, and one of the city’s oldest petting zoos.',
+    location: 'West',
+    lat: 52.3680,
+    lng: 4.8480
+  },
+  {
+    id: 'park-beatrixpark',
+    title: 'Beatrixpark',
+    category: 'park',
+    day: 1,
+    dateLabel: 'Open daily',
+    description: 'Elegant, leafy park in Zuid with a pond, pavilions, and a medicinal herb garden — a calm spot near the RAI and Zuidas.',
+    location: 'Zuid',
+    lat: 52.3430,
+    lng: 4.8810
+  },
+  {
+    id: 'park-erasmuspark',
+    title: 'Erasmuspark',
+    category: 'park',
+    day: 1,
+    dateLabel: 'Open daily',
+    description: 'A little jewel in the west — green fields, gardens, the “Miracle Garden” art installation, and the neighbourhood café Terrasmus.',
+    location: 'West (Bos en Lommer)',
+    lat: 52.3735,
+    lng: 4.8540
+  },
+  {
+    id: 'park-noorderpark',
+    title: 'Noorderpark',
+    category: 'park',
+    day: 1,
+    dateLabel: 'Open daily',
+    description: 'Lively green oasis in Noord with pavilions hosting concerts and performances, plus an outdoor swimming pool.',
+    location: 'Noord',
+    lat: 52.3958,
+    lng: 4.9200
+  },
+  {
+    id: 'park-amstelpark',
+    title: 'Amstelpark',
+    category: 'park',
+    day: 1,
+    dateLabel: 'Open daily',
+    description: 'Large riverside park in Zuid with formal gardens, a Japanese garden, a miniature train, a petting zoo, and the Sunday Pure Markt.',
+    location: 'Zuid, by the Amstel',
+    lat: 52.3290,
+    lng: 4.8930
+  },
+  {
+    id: 'park-sloterpark',
+    title: 'Sloterpark',
+    category: 'park',
+    day: 1,
+    dateLabel: 'Open daily',
+    description: 'One of the largest parks, wrapped around the Sloterplas lake — a city beach, adventure playground, and water-sports rentals.',
+    location: 'Nieuw-West',
+    lat: 52.3680,
+    lng: 4.8120
+  },
+  {
+    id: 'park-gaasperpark',
+    title: 'Gaasperpark',
+    category: 'park',
+    day: 1,
+    dateLabel: 'Open daily',
+    description: 'Lush lakeside park in the southeast with playgrounds, water slides, and a swimming lake — great on a hot day.',
+    location: 'Zuidoost',
+    lat: 52.3110,
+    lng: 4.9930
   }
 ];
