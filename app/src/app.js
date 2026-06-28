@@ -97,6 +97,7 @@ export function createApp(root) {
   function render() {
     const monthData = state.monthData || { events: [], routes: [] };
     const mergedActivities = [...monthData.events, ...monthData.routes];
+    const currentMonthDate = getMonthDate(state.monthOffset);
     const filteredActivities = getFilteredActivities(mergedActivities);
     const eventActivities = filteredActivities.filter(item => ['market', 'concert', 'event'].includes(item.category));
     const activityIdeas = filteredActivities.filter(item => ['route', 'restaurant', 'brewery', 'walking-tour'].includes(item.category));
@@ -111,7 +112,7 @@ export function createApp(root) {
       state.selectedActivityId = activity?.id ?? null;
       state.selectedDay = day ?? state.selectedDay;
       render();
-    });
+    }, currentMonthDate);
 
     activityListEl.innerHTML = '';
     const activityHeading = document.createElement('div');
@@ -228,8 +229,12 @@ export function createApp(root) {
     return mergedActivities.filter(item => item.category === state.selectedCategory);
   }
 
+  function getMonthDate(offset) {
+    return new Date(2026, 6 + offset, 1);
+  }
+
   function getMonthKey(offset) {
-    const base = new Date(2026, 6 + offset, 1);
+    const base = getMonthDate(offset);
     return base.toLocaleString('en-US', { month: 'long', year: 'numeric' });
   }
 }

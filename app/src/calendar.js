@@ -1,6 +1,12 @@
-export function createCalendarView(container, activities, view, selectedDay, onSelect) {
+export function createCalendarView(container, activities, view, selectedDay, onSelect, currentMonthDate) {
+  const monthName = currentMonthDate.toLocaleString('en-US', { month: 'long' });
+  const year = currentMonthDate.getFullYear();
   const title = document.createElement('h3');
-  title.textContent = view === 'month' ? 'July 2026' : view === 'week' ? 'Week of 1–7 July' : `July ${selectedDay}`;
+  title.textContent = view === 'month'
+    ? `${monthName} ${year}`
+    : view === 'week'
+      ? `Week of ${monthName} ${selectedDay}`
+      : `${monthName} ${selectedDay}`;
   title.style.margin = '0 0 12px';
   title.style.fontSize = '18px';
   container.appendChild(title);
@@ -54,7 +60,18 @@ export function createCalendarView(container, activities, view, selectedDay, onS
     grid.appendChild(cell);
   });
 
-  for (let day = 1; day <= 31; day += 1) {
+  const year = currentMonthDate.getFullYear();
+  const month = currentMonthDate.getMonth();
+  const daysInMonth = new Date(year, month + 1, 0).getDate();
+  const firstDay = new Date(year, month, 1).getDay();
+
+  for (let blank = 0; blank < firstDay; blank += 1) {
+    const emptyCell = document.createElement('div');
+    emptyCell.style.minHeight = view === 'week' ? '92px' : '78px';
+    grid.appendChild(emptyCell);
+  }
+
+  for (let day = 1; day <= daysInMonth; day += 1) {
     const cell = document.createElement('button');
     cell.style.minHeight = view === 'week' ? '92px' : '78px';
     cell.style.border = '1px solid #e2e8f0';
