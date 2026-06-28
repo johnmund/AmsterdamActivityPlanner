@@ -1,4 +1,8 @@
 import { createApp } from './app.js';
 
 const root = document.getElementById('app');
-createApp(root);
+if (!root) {
+  console.error('Missing #app root element');
+} else {
+  createApp(root);
+}

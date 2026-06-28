@@ -1,9 +1,8 @@
 export function createCalendarView(container, activities, view, selectedDay, onSelect, currentMonthDate) {
   const monthName = currentMonthDate.toLocaleString('en-US', { month: 'long' });
-  const year = currentMonthDate.getFullYear();
   const title = document.createElement('h3');
   title.textContent = view === 'month'
-    ? `${monthName} ${year}`
+    ? `${monthName} ${currentMonthDate.getFullYear()}`
     : view === 'week'
       ? `Week of ${monthName} ${selectedDay}`
       : `${monthName} ${selectedDay}`;
