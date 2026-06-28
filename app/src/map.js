@@ -10,7 +10,11 @@ export function createMapView(container, activities, selectedActivity) {
 
   if (selectedActivity) {
     const iframe = document.createElement('iframe');
-    iframe.src = `https://www.openstreetmap.org/export/embed.html?bbox=${selectedActivity.lng - 0.02}%2C${selectedActivity.lat - 0.015}%2C${selectedActivity.lng + 0.02}%2C${selectedActivity.lat + 0.015}&layer=mapnik&marker=${selectedActivity.lat}%2C${selectedActivity.lng}`;
+    const path = selectedActivity.path ? selectedActivity.path.map(point => `${point.lat},${point.lng}`).join('&marker=') : null;
+    const routeQuery = selectedActivity.category === 'walking-tour' || selectedActivity.category === 'route' || selectedActivity.category === 'brewery'
+      ? `${path ? `&marker=${path}` : `&marker=${selectedActivity.lat}%2C${selectedActivity.lng}`}`
+      : `&marker=${selectedActivity.lat}%2C${selectedActivity.lng}`;
+    iframe.src = `https://www.openstreetmap.org/export/embed.html?bbox=${selectedActivity.lng - 0.03}%2C${selectedActivity.lat - 0.02}%2C${selectedActivity.lng + 0.03}%2C${selectedActivity.lat + 0.02}${routeQuery}&layer=mapnik`;
     iframe.style.width = '100%';
     iframe.style.height = '100%';
     iframe.style.border = '0';

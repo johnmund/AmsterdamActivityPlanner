@@ -25,7 +25,14 @@ export const activities = [
     mapUrl: 'https://maps.app.goo.gl/xV1ysyHxg7wPrkbq5',
     routeSummary: 'A 45-minute to 1.5-hour route with street art, ferry views, and waterfront stops.',
     duration: '45 min – 1.5 hrs',
-    distance: 'Approx. 4 km'
+    distance: 'Approx. 4 km',
+    path: [
+      { lat: 52.3794, lng: 4.9007 },
+      { lat: 52.3920, lng: 4.9050 },
+      { lat: 52.4029, lng: 4.8946 },
+      { lat: 52.3992, lng: 4.8929 },
+      { lat: 52.3950, lng: 4.8940 }
+    ]
   },
   {
     id: 'market-pek',
@@ -63,7 +70,13 @@ export const activities = [
     sourceUrl: 'https://www.iamsterdam.com/en/see-and-do/nature-and-active/walking-and-cycling-routes/architectural-highlights-walking-route',
     routeSummary: 'A slower architectural walk that pairs well with a relaxed afternoon in the centre.',
     duration: '1–2 hrs',
-    distance: 'Approx. 5 km'
+    distance: 'Approx. 5 km',
+    path: [
+      { lat: 52.3680, lng: 4.9000 },
+      { lat: 52.3630, lng: 4.9050 },
+      { lat: 52.3600, lng: 4.9130 },
+      { lat: 52.3570, lng: 4.9180 }
+    ]
   },
   {
     id: 'market-albert',
@@ -134,7 +147,13 @@ export const activities = [
     sourceUrl: 'https://www.iamsterdam.com/en/see-and-do/nature-and-active/walking-and-cycling-routes/amstel-river-walking-route',
     routeSummary: 'Good for a low-pressure afternoon walk with plenty of space to pause.',
     duration: '1–1.5 hrs',
-    distance: 'Approx. 4 km'
+    distance: 'Approx. 4 km',
+    path: [
+      { lat: 52.3560, lng: 4.9000 },
+      { lat: 52.3520, lng: 4.9100 },
+      { lat: 52.3450, lng: 4.9200 },
+      { lat: 52.3400, lng: 4.9050 }
+    ]
   },
   {
     id: 'restaurant-pllek',

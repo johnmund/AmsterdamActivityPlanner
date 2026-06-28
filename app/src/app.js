@@ -1,5 +1,7 @@
 import { createCalendarView } from './calendar.js';
 import { createMapView } from './map.js';
+import { loadMonthContent } from './dataLoader.js';
+import { contentSources } from './contentSources.js';
 import { activities } from '../data/activities.js';
 
 const categoryLabels = {
@@ -18,7 +20,10 @@ export function createApp(root) {
     selectedCategory: 'all',
     selectedActivityId: null,
     view: 'month',
-    selectedDay: 1
+    selectedDay: 1,
+    monthOffset: 0,
+    monthData: null,
+    loading: false
   };
 
   root.innerHTML = `
@@ -26,15 +31,25 @@ export function createApp(root) {
       <section style="padding:24px;background:linear-gradient(180deg,#f8fbff 0%,#f4f7fb 100%);">
         <h1 style="margin:0 0 8px;font-size:30px;">Amsterdam July planner</h1>
         <p style="margin:0 0 16px;color:#4d5870;max-width:700px;">A two-part planner for city events and idea-driven activities, with map links and route details built in.</p>
-        <div style="display:flex;gap:8px;flex-wrap:wrap;margin-bottom:16px;">
+        <div style="display:flex;gap:8px;flex-wrap:wrap;margin-bottom:16px;align-items:center;">
           <button data-view="month" class="view-button active">Month</button>
           <button data-view="week" class="view-button">Week</button>
           <button data-view="day" class="view-button">Day</button>
+          <div style="margin-left:auto;display:flex;gap:8px;align-items:center;">
+            <button id="month-back" style="border:1px solid #cbd5e1;background:#fff;border-radius:999px;padding:6px 10px;cursor:pointer;">←</button>
+            <div id="month-label" style="font-weight:700;min-width:120px;text-align:center;"></div>
+            <button id="month-forward" style="border:1px solid #cbd5e1;background:#fff;border-radius:999px;padding:6px 10px;cursor:pointer;">→</button>
+          </div>
         </div>
         <div id="calendar" style="background:#ffffff;border:1px solid #e7ebf2;border-radius:16px;padding:16px;box-shadow:0 10px 30px rgba(15,23,42,0.04);"></div>
         <div style="margin-top:18px;background:#ffffff;border:1px solid #e7ebf2;border-radius:16px;padding:16px;box-shadow:0 10px 30px rgba(15,23,42,0.04);">
           <h2 style="margin:0 0 10px;font-size:20px;">Activities</h2>
           <div id="activity-list" style="display:flex;flex-direction:column;gap:8px;"></div>
+        </div>
+        <div style="margin-top:18px;background:#ffffff;border:1px solid #e7ebf2;border-radius:16px;padding:16px;box-shadow:0 10px 30px rgba(15,23,42,0.04);">
+          <h3 style="margin:0 0 8px;font-size:16px;">Public content sources</h3>
+          <div style="font-size:13px;color:#64748b;">Events: ${contentSources.events.join(', ')}</div>
+          <div style="font-size:13px;color:#64748b;margin-top:6px;">Routes: ${contentSources.routes.join(', ')}</div>
         </div>
       </section>
       <aside style="padding:24px;background:#ffffff;border-left:1px solid #e7ebf2;display:flex;flex-direction:column;gap:16px;">
@@ -58,10 +73,31 @@ export function createApp(root) {
     });
   });
 
-  render();
+  root.querySelector('#month-back').addEventListener('click', () => {
+    state.monthOffset -= 1;
+    state.selectedActivityId = null;
+    loadData();
+  });
+
+  root.querySelector('#month-forward').addEventListener('click', () => {
+    state.monthOffset += 1;
+    state.selectedActivityId = null;
+    loadData();
+  });
+
+  loadData();
+
+  async function loadData() {
+    state.loading = true;
+    state.monthData = await loadMonthContent(getMonthKey(state.monthOffset));
+    state.loading = false;
+    render();
+  }
 
   function render() {
-    const filteredActivities = getFilteredActivities();
+    const monthData = state.monthData || { events: [], routes: [] };
+    const mergedActivities = [...monthData.events, ...monthData.routes];
+    const filteredActivities = getFilteredActivities(mergedActivities);
     const eventActivities = filteredActivities.filter(item => ['market', 'concert', 'event'].includes(item.category));
     const activityIdeas = filteredActivities.filter(item => ['route', 'restaurant', 'brewery', 'walking-tour'].includes(item.category));
     const calendarEl = root.querySelector('#calendar');
@@ -110,7 +146,7 @@ export function createApp(root) {
     }
 
     filtersEl.innerHTML = '';
-    const categories = ['all', ...new Set(activities.map(item => item.category))];
+    const categories = ['all', ...new Set(mergedActivities.map(item => item.category))];
     categories.forEach(category => {
       const button = document.createElement('button');
       button.textContent = categoryLabels[category] || category;
@@ -182,11 +218,18 @@ export function createApp(root) {
       });
     }
 
+    root.querySelector('#month-label').textContent = state.monthData ? state.monthData.monthLabel : 'Loading…';
+
     createMapView(mapEl, filteredActivities, selectedActivity);
   }
 
-  function getFilteredActivities() {
-    if (state.selectedCategory === 'all') return activities;
-    return activities.filter(item => item.category === state.selectedCategory);
+  function getFilteredActivities(mergedActivities) {
+    if (state.selectedCategory === 'all') return mergedActivities;
+    return mergedActivities.filter(item => item.category === state.selectedCategory);
+  }
+
+  function getMonthKey(offset) {
+    const base = new Date(2026, 6 + offset, 1);
+    return base.toLocaleString('en-US', { month: 'long', year: 'numeric' });
   }
 }
