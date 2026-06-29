@@ -340,11 +340,15 @@ export function createApp(root) {
       ? `<div style="display:flex;gap:8px;flex-wrap:wrap;margin:8px 0;color:#64748b;font-size:13px;">${selectedActivity.duration ? `<span>${selectedActivity.duration}</span>` : ''}${selectedActivity.distance ? `<span>${selectedActivity.distance}</span>` : ''}</div>`
       : '';
     const isRoute = selectedActivity.category === 'walking-tour' || selectedActivity.category === 'route';
-    const mapLinkLabel = isRoute ? 'Follow full route in Google Maps' : 'Open in maps';
-    const routeLinks = selectedActivity.sourceUrl || selectedActivity.mapUrl
+    // For routes we link to the source page (I amsterdam / route guide), which has
+    // the full ordered stop list and a downloadable map — more reliable than trying
+    // to recreate the route geometry ourselves.
+    const routeNote = isRoute
+      ? `<div style="margin:8px 0;color:#64748b;font-size:12px;">See all stops in order and download the route from the details page.</div>`
+      : '';
+    const routeLinks = selectedActivity.sourceUrl
       ? `<div style="display:flex;gap:8px;flex-wrap:wrap;margin-top:8px;">
-          ${selectedActivity.mapUrl ? `<a href="${selectedActivity.mapUrl}" target="_blank" rel="noopener" style="text-decoration:none;background:#0f766e;color:#fff;padding:8px 10px;border-radius:999px;font-size:13px;">🧭 ${mapLinkLabel}</a>` : ''}
-          ${selectedActivity.sourceUrl ? `<a href="${selectedActivity.sourceUrl}" target="_blank" rel="noopener" style="text-decoration:none;background:#2563eb;color:#fff;padding:8px 10px;border-radius:999px;font-size:13px;">Route details</a>` : ''}
+          <a href="${selectedActivity.sourceUrl}" target="_blank" rel="noopener" style="text-decoration:none;background:#0f766e;color:#fff;padding:8px 10px;border-radius:999px;font-size:13px;">${isRoute ? '🧭 Full route &amp; map details' : 'Details'}</a>
         </div>`
       : '';
 
@@ -371,6 +375,7 @@ export function createApp(root) {
       <p style="margin:0 0 8px;font-size:14px;">${selectedActivity.description}</p>
       ${routeDetailBlock}
       ${metadataBlock}
+      ${routeNote}
       <div style="display:flex;gap:8px;flex-wrap:wrap;margin-top:10px;">
         <a href="https://www.google.com/maps/dir/?api=1&origin=Keizersgracht+61+Amsterdam&destination=${selectedActivity.lat},${selectedActivity.lng}&travelmode=bicycling" target="_blank" rel="noopener" style="text-decoration:none;background:#162033;color:#fff;padding:8px 10px;border-radius:999px;font-size:13px;">Bike directions</a>
         <a href="https://www.google.com/maps/dir/?api=1&origin=Keizersgracht+61+Amsterdam&destination=${selectedActivity.lat},${selectedActivity.lng}&travelmode=transit" target="_blank" rel="noopener" style="text-decoration:none;background:#2563eb;color:#fff;padding:8px 10px;border-radius:999px;font-size:13px;">Transit directions</a>

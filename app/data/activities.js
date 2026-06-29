@@ -46,16 +46,7 @@ export const activities = [
     sourceUrl: 'https://bromptoning.com/traveling-adventures/netherlands/cycle-route-amsterdam-waterland/',
     routeSummary: 'Half-day cycling loop through polders and fishing villages north of Amsterdam.',
     duration: '~6 hrs with stops',
-    distance: '48 km',
-    path: [
-      { lat: 52.3791, lng: 4.9003 },
-      { lat: 52.3958, lng: 4.9200 },
-      { lat: 52.3760, lng: 4.9760 },
-      { lat: 52.4565, lng: 5.0380 },
-      { lat: 52.4640, lng: 5.0010 },
-      { lat: 52.4290, lng: 4.9920 },
-      { lat: 52.3791, lng: 4.9003 }
-    ]
+    distance: '48 km'
   },
 
   // === WALKING TOURS ===
@@ -74,13 +65,7 @@ export const activities = [
     mapUrl: 'https://maps.app.goo.gl/xV1ysyHxg7wPrkbq5',
     routeSummary: 'A 45-minute to 1.5-hour route with street art, ferry views, and waterfront stops.',
     duration: '45 min – 1.5 hrs',
-    distance: 'Approx. 4 km',
-    path: [
-      { lat: 52.3791, lng: 4.9003 },
-      { lat: 52.4013, lng: 4.8938 },
-      { lat: 52.3992, lng: 4.8929 },
-      { lat: 52.3949, lng: 4.9088 }
-    ]
+    distance: 'Approx. 4 km'
   },
   {
     id: 'walk-architectural',
@@ -97,13 +82,7 @@ export const activities = [
     mapUrl: 'https://maps.app.goo.gl/5f7GiMBuxJ8GX9Fk7',
     routeSummary: 'A slower architectural walk that pairs well with a relaxed afternoon in the centre.',
     duration: '1–2 hrs',
-    distance: 'Approx. 5 km',
-    path: [
-      { lat: 52.3700, lng: 4.8950 },
-      { lat: 52.3676, lng: 4.9041 },
-      { lat: 52.3640, lng: 4.9010 },
-      { lat: 52.3610, lng: 4.8950 }
-    ]
+    distance: 'Approx. 5 km'
   },
   {
     id: 'walk-amstel',
@@ -120,13 +99,7 @@ export const activities = [
     mapUrl: 'https://maps.app.goo.gl/Q78JP5oUYrfUwnAV8',
     routeSummary: 'Good for a low-pressure afternoon walk with plenty of space to pause.',
     duration: '1–1.5 hrs',
-    distance: 'Approx. 4 km',
-    path: [
-      { lat: 52.3660, lng: 4.8990 },
-      { lat: 52.3590, lng: 4.9030 },
-      { lat: 52.3520, lng: 4.9050 },
-      { lat: 52.3460, lng: 4.9020 }
-    ]
+    distance: 'Approx. 4 km'
   },
   {
     id: 'walk-food-lovers',
@@ -143,13 +116,7 @@ export const activities = [
     mapUrl: 'https://maps.app.goo.gl/xmZyP6KK8MGKhPRH6',
     routeSummary: 'A tasting-friendly route through Amsterdam’s best food neighbourhood.',
     duration: '40 min – 1.5 hrs',
-    distance: 'Approx. 3 km',
-    path: [
-      { lat: 52.3625, lng: 4.8975 },
-      { lat: 52.3557, lng: 4.8917 },
-      { lat: 52.3548, lng: 4.8945 },
-      { lat: 52.3525, lng: 4.8955 }
-    ]
+    distance: 'Approx. 3 km'
   },
   {
     id: 'walk-west-is-best',
@@ -166,13 +133,7 @@ export const activities = [
     mapUrl: 'https://maps.app.goo.gl/URH8c7QepiCaCScz9',
     routeSummary: 'Creative neighbourhoods, canal houseboats, and local charm away from the centre.',
     duration: '~50 min',
-    distance: 'Approx. 4 km',
-    path: [
-      { lat: 52.3749, lng: 4.8839 },
-      { lat: 52.3718, lng: 4.8770 },
-      { lat: 52.3720, lng: 4.8650 },
-      { lat: 52.3735, lng: 4.8540 }
-    ]
+    distance: 'Approx. 4 km'
   },
   {
     id: 'walk-old-meets-new',
@@ -189,13 +150,7 @@ export const activities = [
     mapUrl: 'https://maps.app.goo.gl/JhLGHShxLb8xJNpP7',
     routeSummary: 'Classical art meets contemporary culture across Oud-Zuid and Oud-West.',
     duration: '40 min – 1.5 hrs',
-    distance: 'Approx. 3.5 km',
-    path: [
-      { lat: 52.3600, lng: 4.8852 },
-      { lat: 52.3584, lng: 4.8710 },
-      { lat: 52.3620, lng: 4.8690 },
-      { lat: 52.3668, lng: 4.8687 }
-    ]
+    distance: 'Approx. 3.5 km'
   },
   {
     id: 'walk-wildlife',
@@ -212,13 +167,7 @@ export const activities = [
     mapUrl: 'https://maps.app.goo.gl/AR2xMwyZTPAcX2pw8',
     routeSummary: 'A greener walk for when you want nature over architecture.',
     duration: '1–1.5 hrs',
-    distance: 'Approx. 3.5 km',
-    path: [
-      { lat: 52.3584, lng: 4.8686 },
-      { lat: 52.3560, lng: 4.8640 },
-      { lat: 52.3520, lng: 4.8610 },
-      { lat: 52.3490, lng: 4.8560 }
-    ]
+    distance: 'Approx. 3.5 km'
   },
   {
     id: 'walk-maritime',
@@ -235,13 +184,7 @@ export const activities = [
     mapUrl: 'https://maps.app.goo.gl/9Gm38sgjL7f1MJgM7',
     routeSummary: 'Seafaring history and harbour views along the waterfront.',
     duration: '1–1.5 hrs',
-    distance: 'Approx. 4 km',
-    path: [
-      { lat: 52.3716, lng: 4.9152 },
-      { lat: 52.3735, lng: 4.9190 },
-      { lat: 52.3748, lng: 4.9230 },
-      { lat: 52.3760, lng: 4.9290 }
-    ]
+    distance: 'Approx. 4 km'
   },
 
   // === MARKETS ===

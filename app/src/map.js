@@ -14,8 +14,23 @@ const categoryColors = {
   grocery: '#65a30d'
 };
 
+// Home base — Keizersgracht 61. All directions are routed from here.
+const HOME = { lat: 52.3784, lng: 4.8892, label: 'Home — Keizersgracht 61' };
+
 let mapInstance = null;
 let markerGroup = null;
+
+function addHomeMarker(group) {
+  const icon = L.divIcon({
+    className: 'home-marker',
+    html: '<div style="background:#162033;color:#fff;width:30px;height:30px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:15px;border:3px solid #fff;box-shadow:0 1px 4px rgba(0,0,0,0.4);">🏠</div>',
+    iconSize: [30, 30],
+    iconAnchor: [15, 15]
+  });
+  const marker = L.marker([HOME.lat, HOME.lng], { icon, zIndexOffset: 1000 });
+  marker.bindPopup(`<b>${HOME.label}</b><br><span style="color:#64748b;font-size:12px">Trip home base</span>`);
+  group.addLayer(marker);
+}
 
 export function createMapView(container, activities, selectedActivity, onSelect) {
   if (typeof L === 'undefined') {
@@ -36,6 +51,7 @@ export function createMapView(container, activities, selectedActivity, onSelect)
   }
 
   markerGroup.clearLayers();
+  addHomeMarker(markerGroup);
 
   const seen = new Map();
   activities.forEach(a => {
@@ -64,35 +80,14 @@ export function createMapView(container, activities, selectedActivity, onSelect)
     markerGroup.addLayer(marker);
   });
 
-  const hasPath = selectedActivity && Array.isArray(selectedActivity.path) && selectedActivity.path.length > 1;
-
-  if (hasPath) {
-    // Draw an approximate route line so walking/cycling routes read as a
-    // connected path rather than a single dot. Geometry is indicative, not exact —
-    // the precise turn-by-turn lives behind the "Follow full route" Google Maps link.
-    const color = categoryColors[selectedActivity.category] || '#0f766e';
-    const latlngs = selectedActivity.path.map(p => [p.lat, p.lng]);
-    const line = L.polyline(latlngs, {
-      color,
-      weight: 4,
-      opacity: 0.85,
-      dashArray: '2,7',
-      lineCap: 'round',
-      lineJoin: 'round'
-    });
-    markerGroup.addLayer(line);
-    selectedActivity.path.forEach(p => {
-      markerGroup.addLayer(L.circleMarker([p.lat, p.lng], {
-        radius: 4, fillColor: '#fff', color, weight: 2, fillOpacity: 1
-      }));
-    });
-    mapInstance.fitBounds(line.getBounds().pad(0.2), { animate: true });
-  } else if (selectedActivity && selectedActivity.lat) {
+  if (selectedActivity && selectedActivity.lat) {
     // Pan to the selection without zooming in aggressively. Only ease the zoom
     // up to a comfortable city level if we're currently zoomed way out.
     const targetZoom = Math.max(mapInstance.getZoom(), 13);
     mapInstance.setView([selectedActivity.lat, selectedActivity.lng], targetZoom, { animate: true });
-  } else if (markerGroup.getLayers().length) {
+  } else if (seen.size > 0) {
+    // Fit to the activity markers (and home). Guard on real markers existing so a
+    // render with no data yet (only the home marker) doesn't zoom to a single point.
     mapInstance.fitBounds(markerGroup.getBounds().pad(0.1));
   }
 
