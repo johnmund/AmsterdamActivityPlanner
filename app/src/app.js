@@ -7,7 +7,7 @@ const exploreCategoryLabels = {
   all: 'All',
   highlight: 'Highlights',
   park: 'Parks',
-  route: 'Routes',
+  route: 'Bike routes',
   market: 'Markets',
   concert: 'Concerts',
   event: 'Events',
@@ -344,7 +344,7 @@ export function createApp(root) {
     // the full ordered stop list and a downloadable map — more reliable than trying
     // to recreate the route geometry ourselves.
     const routeNote = isRoute
-      ? `<div style="margin:8px 0;color:#64748b;font-size:12px;">See all stops in order and download the route from the details page.</div>`
+      ? `<div style="margin:8px 0;color:#64748b;font-size:12px;">See the full route, stops, and map on the linked guide.</div>`
       : '';
     const routeLinks = selectedActivity.sourceUrl
       ? `<div style="display:flex;gap:8px;flex-wrap:wrap;margin-top:8px;">
